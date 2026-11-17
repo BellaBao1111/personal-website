@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bella, a co-op game for one player</title>
-<meta name="description" content="Bella is a software engineer at Adobe who started in bioinformatics. This is her story as a split-screen game: one set of keys, two worlds, and at the end they merge.">
+<meta name="description" content="Bella is a software engineer at Adobe who works like a forward deployed engineer. This is her story as a 3D split-screen game: two players, two worlds, and at the end they merge.">
 <meta property="og:title" content="Bella, a co-op game for one player">
-<meta property="og:description" content="One set of keys moves a scientist and an engineer through two worlds. At the end, they turn out to be the same person.">
+<meta property="og:description" content="One player is in the room with the customer. The other ships the fix. At the end, they turn out to be the same engineer.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#0C2A6B">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='16' height='32' fill='%23EDF1F5'/%3E%3Crect x='16' width='16' height='32' fill='%23140E07'/%3E%3Cpath d='M16 6a10 10 0 0 0 0 20z' fill='%23143C8C'/%3E%3Cpath d='M16 7a9 9 0 0 1 0 18' fill='none' stroke='%23FFB000' stroke-width='2'/%3E%3C/svg%3E">
@@ -14,16 +14,17 @@
 <link rel="preload" href="fonts/martian-mono-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="is-title landscape">
+<body class="is-title portrait">
 
 <canvas id="stage" aria-hidden="true"></canvas>
+<canvas id="fx" aria-hidden="true"></canvas>
 
-<!-- The scientist's half of the interface. Clipped to her side of the seam. -->
+<!-- The forward half of the interface. Clipped to her side of the seam. -->
 <div id="ui-l" class="ui side-l">
   <h1 class="t-name">Bella</h1>
   <div class="box">
     <div class="hud">
-      <span class="who">Player one, the scientist</span>
+      <span class="who">Surface world <span lang="zh-Hans">表世界</span>, player one</span>
       <span data-count></span>
       <span data-bugs></span>
     </div>
@@ -31,8 +32,9 @@
     <p class="t-half t-go"><span class="k-key">Press space</span><span class="k-touch">Tap</span></p>
     <div class="info">
       <p class="i-role">Player one</p>
-      <p class="i-name">The scientist</p>
-      <p class="i-does">Asks why things work.</p>
+      <p class="i-name">Forward</p>
+      <p class="i-does">In the room with the customer. A D W.</p>
+      <p class="i-world">The surface: the real world <span lang="zh-Hans">表世界</span></p>
     </div>
     <p class="cap" data-cap></p>
     <div class="chap" data-chap>
@@ -49,7 +51,7 @@
   <p class="t-name">bella</p>
   <div class="box">
     <div class="hud">
-      <span class="who">player two, the engineer</span>
+      <span class="who">code world <span lang="zh-Hans">里世界</span>, player two</span>
       <span data-count></span>
       <span data-bugs></span>
     </div>
@@ -58,7 +60,8 @@
     <div class="info">
       <p class="i-role">player two</p>
       <p class="i-name">the engineer</p>
-      <p class="i-does">makes things work.</p>
+      <p class="i-does">ships the fix. arrow keys.</p>
+      <p class="i-world">underneath: the code world <span lang="zh-Hans">里世界</span></p>
     </div>
     <p class="cap" data-cap></p>
     <div class="chap" data-chap>
@@ -72,20 +75,27 @@
 
 <!-- Controls that belong to neither side -->
 <button id="start" type="button" aria-label="Start the game"></button>
-<p id="how">Arrow keys or A and D to move. Space to jump. One set of keys moves both of me.</p>
+<p id="how"><span>Two players, one keyboard. Play both yourself, or hand half to a friend.</span></p>
 <div id="bar">
   <button id="sound" type="button" aria-pressed="true">Sound on</button>
   <button id="skip" type="button">Skip to the ending</button>
 </div>
-<button id="merge" type="button">
-  <span class="m-ring" aria-hidden="true"></span>
-  <span class="m-text"><span class="k-key">Hold space<br>to merge</span><span class="k-touch">Hold here<br>to merge</span></span>
+<div id="merge" aria-hidden="true">
+  <span class="m-ring"></span>
+  <span class="m-text">Both of me,<br>on the marks</span>
   <span class="m-zh" lang="zh-Hans">合二为一</span>
-</button>
-<div id="pad">
-  <button id="btn-left" type="button" aria-label="Move left"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
-  <button id="btn-right" type="button" aria-label="Move right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
-  <button id="btn-jump" type="button">Jump</button>
+</div>
+<div id="pads">
+  <div class="pad pad-l">
+    <button type="button" data-p="L" data-k="left" aria-label="Player one, move left"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button type="button" data-p="L" data-k="right" aria-label="Player one, move right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button type="button" class="up" data-p="L" data-k="jump" aria-label="Player one, jump"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15l7-7 7 7"/></svg></button>
+  </div>
+  <div class="pad pad-r">
+    <button type="button" class="up" data-p="R" data-k="jump" aria-label="Player two, jump"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15l7-7 7 7"/></svg></button>
+    <button type="button" data-p="R" data-k="left" aria-label="Player two, move left"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button type="button" data-p="R" data-k="right" aria-label="Player two, move right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
 </div>
 <p id="live" class="sr" aria-live="polite"></p>
 
@@ -124,7 +134,7 @@
 
     <footer>
       <p id="w-credits"></p>
-      <p class="made">Everything here is drawn in code: canvas and Web Audio, no frameworks, no image files.</p>
+      <p class="made">Everything here is drawn in code: three.js and Web Audio, no model or image files.</p>
       <button id="replay" type="button">Play again</button>
     </footer>
   </section>
@@ -133,14 +143,13 @@
 <noscript>
   <div class="nojs">
     <h1>Bella</h1>
-    <p>This site is a small game and needs JavaScript. The short version: I'm a software engineer at Adobe on the Developer Experience team, working on AI-powered code review and the evaluation that tells us whether to trust it. Before that, Health Informatics at Yale and Bioinformatics at UC San Diego.</p>
+    <p>This site is a small game and needs JavaScript. The short version: I'm a software engineer at Adobe on the Developer Experience team, working on AI-powered code review. I work like a forward deployed engineer: in the room with the people who have the problem, and in the code that fixes it.</p>
     <p><a href="https://github.com/BellaBao1111">github.com/BellaBao1111</a></p>
   </div>
 </noscript>
 
 <script src="js/story.js"></script>
 <script src="js/audio.js"></script>
-<script src="js/render.js"></script>
-<script src="js/game.js"></script>
+<script type="module" src="js/game.js"></script>
 </body>
 </html>

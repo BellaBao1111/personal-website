@@ -1,6 +1,12 @@
 /* ------------------------------------------------------------------
    story.js — everything you'd want to edit lives here.
    Words, dates, links and the level layout. No drawing code.
+
+   Two players, both Bella, together a forward deployed engineer:
+     L = forward       (left world, daylight) in the room with the customer
+                        keys A D W
+     R = the engineer  (right world, night)   deep in the implementation
+                        keys ← → ↑
    ------------------------------------------------------------------ */
 (function () {
   'use strict';
@@ -16,208 +22,200 @@
     }
   };
 
-  // ---- World measurements (world units, not pixels) ----------------
-  const G = 470;          // y of the ground
-  const END_X = 9050;     // where the two worlds meet
+  const END_X = 218;      // where the two marks are
 
   // ---- Chapters ----------------------------------------------------
-  // l = the scientist's voice (left / top), r = the engineer's voice.
   const CHAPTERS = [
-    {
-      start: -400, year: '2019',
-      l: { no: 'Chapter one', title: 'Origin', place: 'La Jolla, California', zh: '起点' },
-      r: { no: 'ch_01', title: 'origin', place: 'la jolla, california', zh: '起点' }
-    },
-    {
-      start: 2200, year: '2023',
-      l: { no: 'Chapter two', title: 'Bugs, both kinds', place: 'Shenzhen, summer 2023', zh: '捉虫' },
-      r: { no: 'ch_02', title: 'bugs, both kinds', place: 'shenzhen, summer 2023', zh: '捉虫' }
-    },
-    {
-      start: 4300, year: '2024',
+    { start: -50, year: '2019',
+      l: { no: 'Chapter one', title: 'Hello, world', place: 'La Jolla, California', zh: '起点' },
+      r: { no: 'ch_01', title: 'hello, world', place: 'la jolla, california', zh: '起点' } },
+    { start: 50, year: '2023',
+      l: { no: 'Chapter two', title: 'Ship it', place: 'Shenzhen, summer 2023', zh: '上线' },
+      r: { no: 'ch_02', title: 'ship it', place: 'shenzhen, summer 2023', zh: '上线' } },
+    { start: 105, year: '2024',
       l: { no: 'Chapter three', title: 'Two halves start talking', place: 'New Haven, Connecticut', zh: '对话' },
-      r: { no: 'ch_03', title: 'two halves start talking', place: 'new haven, connecticut', zh: '对话' }
-    },
-    {
-      start: 6700, year: '2025',
-      l: { no: 'Chapter four', title: 'Teaching machines to review', place: 'San Jose, California', zh: '合流' },
-      r: { no: 'ch_04', title: 'teaching machines to review', place: 'san jose, california', zh: '合流' }
-    }
+      r: { no: 'ch_03', title: 'two halves start talking', place: 'new haven, connecticut', zh: '对话' } },
+    { start: 165, year: '2025',
+      l: { no: 'Chapter four', title: 'Forward deployed', place: 'San Jose, California', zh: '合流' },
+      r: { no: 'ch_04', title: 'forward deployed', place: 'san jose, california', zh: '合流' } }
   ];
 
   // ---- Story beats -------------------------------------------------
-  // A beat fires when BOTH players have walked past x.
+  // l fires when the forward half passes x, r when the engineer does.
   const BEATS = [
-    { x: 60,
-      l: '2019. I arrive at UC San Diego wanting to know how living things work.',
-      r: '2019. i arrive at uc san diego wanting to know how to make things work.' },
-    { x: 430,
-      l: 'So I major in Bioinformatics: biology, read as text.',
-      r: 'and minor in computer science: text, made to run.' },
-    { x: 1250,
-      l: 'I have a question and no tools.',
-      r: 'i have tools and no question.' },
+    { x: 0.5, l: '2019. UC San Diego. I learn to ask what people actually need.',
+              r: '2019. uc san diego. i learn to build it.' },
+    { x: 5,   l: 'A and D to walk. W to jump.',
+              r: 'left and right arrows to walk. up arrow to jump.' },
+    { x: 18,  l: 'That plate ahead opens her door, not mine. Getting us in the door is my job.',
+              r: 'my door is shut. she has to open it.' },
+    { x: 27,  r: 'through. now i hold the next one: she needs something that works to walk in with.' },
+    { x: 37,  l: 'Two marks, two doors. We press together.',
+              r: 'two marks, two doors. we press together.' },
 
-    { x: 2260,
-      l: 'Summer 2023. Degree in hand, I go to see what happens to ideas outside a lab.',
-      r: 'summer 2023. two internships: software engineering at bytedance, mobile messaging ui at easycount in shenzhen.' },
-    { x: 2470,
-      l: 'There are bugs here. I know what to do with bugs: observe, collect, label.',
-      r: 'there are bugs here. i know what to do with bugs: reproduce, fix, ship.' },
-    { x: 3880,
-      l: 'Field note: real users are the most surprising organisms I have studied.',
-      r: 'real phones. real users. nothing teaches like shipping.' },
+    { x: 51,  l: 'Summer 2023. Real users, real phones, real bugs.',
+              r: 'summer 2023. two internships: software engineering at bytedance, mobile messaging ui at easycount in shenzhen.' },
+    { x: 54,  l: 'A bug, in front of a user. Jump on it.',
+              r: 'a bug. jump on it.' },
+    { x: 65,  l: 'She can’t cross that gap alone. When I walk, her platform moves.',
+              r: 'i can’t cross alone. i step on, she walks, i ride.' },
+    { x: 84,  l: 'My turn. What she ships carries me across.',
+              r: 'now i carry her.' },
 
-    { x: 4360,
-      l: 'Autumn 2023. Yale, for a master’s in Health Informatics.',
-      r: 'new coast, colder. same two tracks, running closer together.' },
-    { x: 4880,
-      l: 'Curiosity alone won’t get me across.' },
-    { x: 5330,
-      l: 'In health data, every row turns out to be a person.',
-      r: 'so the code has to be right. not clever. right.' },
-    { x: 5600,
-      r: 'code alone won’t get me across.' },
-    { x: 6230,
-      l: 'Summer 2024. A side quest: software engineering intern at Adobe.',
-      r: 'side quest accepted. (it becomes the main quest.)' },
+    { x: 106, l: 'Autumn 2023. Yale, for a master’s.',
+              r: 'new coast, colder, harder problems.' },
+    { x: 109, l: 'Too high to jump. I wait on the lift.',
+              r: 'i stand on the switch. her lift goes up.' },
+    { x: 116, l: 'Up. Now I find her switch.' },
+    { x: 124, l: 'The half that listens and the half that builds start to talk.',
+              r: 'turns out they need each other.' },
+    { x: 141, l: 'Summer 2024. A side quest: software engineering intern at Adobe.',
+              r: 'side quest accepted. (it becomes the main quest.)' },
+    { x: 145.5, l: 'I hold the bridge. She crosses.',
+              r: 'then i hold hers.' },
 
-    { x: 6760,
-      l: 'And I ask the scientist’s question: is it actually any good?',
-      r: 'july 2025. adobe, developer experience. i build ai that reviews code.' },
-    { x: 6960,
-      l: 'So I build the evaluation: benchmarks, evidence, a verdict.' },
-    { x: 7500,
-      l: 'Somewhere along the way I start mentoring interns.',
-      r: 'new party member joined.' },
-    { x: 7720,
-      r: 'every claim gets a test run.' },
-    { x: 8120,
-      l: 'Building it is the engineer’s job. Doubting it is the scientist’s.',
-      r: 'building it is the engineer’s job. doubting it is the scientist’s.' },
-    { x: 8720,
-      l: 'The line between us has been getting thinner for years.',
-      r: 'no merge conflict found.' }
+    { x: 166, l: 'My customers are engineers. I work across their teams until it runs in their pipelines.',
+              r: 'july 2025. adobe, developer experience. i build ai that reviews code.' },
+    { x: 168, l: 'Every piece of feedback I bring back clears something in her way.',
+              r: 'blocked. i need to know what they actually meant.' },
+    { x: 177, r: 'every fix i ship gives her ground to stand on.' },
+    { x: 196.5, l: 'Somewhere along the way I start mentoring interns.',
+              r: 'new party member joined.' },
+    { x: 209, l: 'In the room and in the code were never two jobs.',
+              r: 'in the room and in the code were never two jobs.' },
+    { x: 214, l: 'One mark each. Stand on both.',
+              r: 'one mark each. stand on both.' }
   ];
 
   // Lines spoken when something happens rather than somewhere.
   const LINES = {
-    gotQuestion: { r: 'received: one good question.' },
-    gotScript:   { l: 'Received: one working script.' },
-    gate1:       { l: 'It turns out we need each other.', r: 'noted: we work better as a pair.' },
-    bugsLeft:    { l: 'One got away. Go back for it.', r: 'one still open. go back for it.' },
-    gate2:       { l: 'All six, catalogued.', r: 'all six, fixed.' },
-    gotDataset:  { r: 'here. a dataset. build on it.' },
-    gotHypo:     { l: 'Here. A hypothesis. Test it.' },
-    stamp1:      { r: 'review passed. merging.' },
-    tests:       { l: 'Evidence accepted.' },
-    stamp2:      { r: 'approved. nothing left in the way.' },
-    tether:      { l: 'I can’t go on without the other half of me.', r: 'waiting for the other half of me.' },
-    finale:      { l: 'Here is where the worlds touch.', r: 'here is where the worlds touch.' }
+    sync:    { l: 'Nothing ships alone.', r: 'nothing ships alone.' },
+    stompL:  { l: 'Caught it before the customer did.' },
+    stompR:  { r: 'fixed.' },
+    comment: { l: 'Feedback, straight from the customer.', r: 'unblocked. so that’s what they meant.' },
+    commit:  { l: 'Something real to stand on.', r: 'fix shipped.' },
+    finale:  { l: 'Hold still. Merging.', r: 'hold still. merging.' }
   };
 
   // ---- The ending and the page beneath it ---------------------------
   const WHOLE = {
     hello: 'I’m Bella.',
-    line: 'A scientist who ships, an engineer who measures. Both players were always me.',
+    line: 'The one in the room with the customer and the one who ships the fix. Both players were always me.',
     about: [
-      'I’m a software engineer at Adobe, on the Developer Experience team in San Jose. I work on AI-powered code review: building the reviewer, and building the evaluation frameworks and benchmarks that tell us whether to trust it.',
-      'I got here sideways. I studied Bioinformatics at UC San Diego, then Health Informatics at Yale, and somewhere between reading genomes and reading pull requests I noticed they were the same habit: compare two versions carefully, and care about what changed.',
-      'I think in two languages, Chinese and English, and in two disciplines. This site is what that feels like.'
+      'I’m a software engineer at Adobe, on the Developer Experience team in San Jose. I work on AI-powered code review: building it, getting it running in other teams’ pipelines, and building the evaluation that tells us whether to trust it.',
+      'My customers are engineers, so the feedback is fast and blunt. The part of the work I like best is the loop: sit with the people who have the problem, find out what is actually blocking them, go build the fix, and come back to watch it land.',
+      'That is how a forward deployed engineer works, and it is how I work: one half out front with the customer, one half deep in the implementation, and no handoff between them.',
+      'I think in two languages, Chinese and English, and switch between them without noticing.'
     ],
     path: [
-      { when: '2025 to now', what: 'Software Engineer, Adobe', more: 'Developer Experience. AI code review, evaluation frameworks, benchmarking, production monitoring. Mentoring interns.' },
+      { when: '2025 to now', what: 'Software Engineer, Adobe', more: 'Developer Experience. AI code review, cross-team integration, evaluation frameworks, benchmarking, production monitoring. Mentoring interns.' },
       { when: 'Summer 2024', what: 'Software Engineering Intern, Adobe', more: 'The side quest that became the main quest.' },
-      { when: '2023 to 2025', what: 'M.S. Health Informatics, Yale University', more: '' },
+      { when: '2023 to 2025', what: 'M.S., Yale University', more: '' },
       { when: 'Summer 2023', what: 'Software Engineering Intern, ByteDance', more: '' },
       { when: 'May to Sep 2023', what: 'Assistant Engineer, Easycount Technology', more: 'Shenzhen. Mobile messaging UI.' },
-      { when: '2019 to 2023', what: 'B.S. Bioinformatics, UC San Diego', more: 'Minor in Computer Science.' }
+      { when: '2019 to 2023', what: 'B.S., UC San Diego', more: '' }
     ],
     loadout: [
-      'AI code review', 'Evaluation design', 'Benchmarking', 'Production monitoring',
-      'CI/CD integration', 'LLM and agent tooling', 'Mentoring'
+      'Cross-team integration', 'AI code review', 'Evaluation design', 'Benchmarking',
+      'Production monitoring', 'CI/CD integration', 'LLM and agent tooling', 'Mentoring'
     ],
     sidequests: [
       'Prototyping small games. This site is one of them.',
       'Home automation with Home Assistant.',
       'Tinkering with AI agents and MCP.'
     ],
-    credits: 'Written, directed and played by Bella. Player one: Bella. Player two: also Bella.'
+    credits: 'Written, scoped, built and shipped by Bella. Player one: Bella. Player two: also Bella.'
   };
 
   // ---- Level layout ------------------------------------------------
-  // crate(x, height, width) sits on the ground. Pickups are centred on x, y.
-  const crate = (x, h, w) => ({ x, y: G - h, w, h });
-  const pk = (x, up, glyph, extra) => Object.assign({ x, y: G - up, glyph, got: false }, extra || {});
-
+  // Units are metres, y is up, the ground is y = 0. A player is 0.9 tall,
+  // jumps 2.3 high and about 4.4 far.
+  //
+  //   ground:  [x0, x1, top]            anything not covered is a pit
+  //   blocks:  [x0, x1, y0, y1]         static things to climb
+  //   plates:  work only while stood on; `drives` something in the OTHER
+  //            world, `sync` plates open a pair of doors when both are held
+  //   doors, lifts, bridges: driven by a plate or a pickup in the other world
+  //   carry:   a platform whose x follows the other player along `track`
   const LEVEL = {
     L: {
-      solids: [
-        // chapter one
-        crate(560, 60, 120), crate(1010, 60, 110), crate(1120, 116, 130), crate(1450, 70, 150),
-        // chapter two
-        crate(2960, 64, 220),
-        // chapter three
-        crate(5440, 70, 150),
-        // chapter four
-        crate(7060, 64, 150), crate(8200, 60, 110), crate(8310, 116, 150)
+      ground: [[-12, 14, 0], [16.6, 88, 0], [100, 115, 0], [115, 140, 5], [140, 150, 0], [158, 176, 0], [182, 190, 0], [196, 240, 0]],
+      blocks: [
+        [8, 10, 0, 1], [39, 41.5, 0, 1.2],
+        [72, 74, 0, 1], [128, 130, 5, 6], [132, 134.5, 5, 6.6],
+        [184, 185.6, 0, 1], [185.6, 187.2, 0, 2],
+        [206, 208, 0, 3.3]
       ],
-      pits: [{ x0: 5000, x1: 5250, flag: 'bridgeL' }],
+      plates: [
+        { id: 'pL1', x: 22, y: 0, drives: 'dR1' },
+        { id: 'sL1', x: 44, y: 0, sync: 's1' },
+        { id: 'sL2', x: 101.6, y: 0, sync: 's2' },
+        { id: 'pL3', x: 119.5, y: 5, drives: 'liftR' },
+        { id: 'pL4', x: 146.6, y: 0, drives: 'bR4' },
+        { id: 'sL3', x: 160.6, y: 0, sync: 's3' }
+      ],
+      doors: [
+        { id: 'dL1', x: 34 }, { id: 's1', x: 47, sync: true }, { id: 's2', x: 103.6, sync: true }, { id: 's3', x: 163, sync: true }
+      ],
+      lifts: [{ id: 'liftL', x0: 111.4, x1: 114.9, y0: 0.35, y1: 5 }],
+      bridges: [
+        { id: 'bL4', x0: 150, x1: 158, y: 0 },
+        { id: 'gL1', x0: 176, x1: 182, y: 0, ghost: true },
+        { id: 'gL2', x0: 190, x1: 196, y: 0, ghost: true },
+        { id: 'gL3', x0: 204, x1: 206, y: 1.6, ghost: true, step: true }
+      ],
+      carry: [{ id: 'cL', w: 3, y: 0, from: 89.5, to: 98.5, track: [86, 95] }],
+      rails: [[68, 77]],
+      bugs: [{ x0: 55, x1: 61, y: 0 }, { x0: 141.5, x1: 145, y: 0 }, { x0: 197, x1: 202, y: 0 }],
       pickups: [
-        pk(790, 34, 'A'), pk(620, 100, 'C'), pk(1065, 100, 'G'), pk(1185, 158, 'T'),
-        pk(1525, 118, '?', { key: 'gotQuestion', big: true }),
-        pk(4500, 34, 'A'), pk(5125, 96, 'T'), pk(6000, 34, 'G'),
-        pk(5515, 118, 'H₀', { key: 'gotHypo', big: true }),
-        pk(6900, 34, 'C'), pk(7500, 104, 'A'), pk(8760, 34, 'T')
+        { x: 5, y: 1.3 }, { x: 9, y: 2.5 }, { x: 15.3, y: 2.3 }, { x: 28, y: 1.3 }, { x: 40.2, y: 2.7 },
+        { x: 64, y: 1.3 }, { x: 73, y: 2.6 }, { x: 94, y: 2.4 },
+        { x: 113, y: 2.6 }, { x: 129, y: 7.4 }, { x: 133.2, y: 8.1 }, { x: 154, y: 2.2 },
+        { x: 179, y: 2.2 }, { x: 193, y: 2.2 }, { x: 207, y: 4.8 },
+        { x: 169, y: 1.2, key: 'wR1', kind: 'comment' },
+        { x: 186.4, y: 3.2, key: 'wR2', kind: 'comment' },
+        { x: 198.5, y: 1.2, key: 'wR3', kind: 'comment' }
       ],
-      bugs: [
-        { x0: 2520, x1: 2760, y: G, fly: false },
-        { x0: 2985, x1: 3150, y: G - 64, fly: false },
-        { x0: 3450, x1: 3720, y: G - 112, fly: true }
-      ],
-      gates: [
-        { id: 'g1', x: 1960, label: 'needs a script' },
-        { id: 'g2', x: 4100, label: 'six bugs' },
-        { id: 'wL1', x: 7960, label: 'unverified' }
-      ],
-      pads: [
-        { id: 'stamp1', x: 7075, w: 120, y: G - 64, opens: 'wR1', line: 'stamp1' },
-        { id: 'stamp2', x: 8325, w: 120, y: G - 116, opens: 'wR2', line: 'stamp2' }
-      ],
-      signs: [{ x: 6330, text: ['Summer 2024', 'Adobe', 'intern'] }]
+      signs: [{ x: 143, text: ['Summer 2024', 'Adobe', 'intern'] }]
     },
     R: {
-      solids: [
-        crate(450, 60, 110), crate(820, 60, 120), crate(940, 116, 120), crate(1620, 70, 150),
-        crate(3160, 64, 220),
-        crate(4720, 70, 150),
-        crate(7640, 64, 150)
+      ground: [[-12, 13.6, 0], [16.2, 70, 0], [82, 123, 0], [123, 140, 5], [140, 148, 0], [156, 240, 0]],
+      blocks: [
+        [4.6, 6.6, 0, 1], [7.4, 9, 0, 1.9],
+        [64, 66, 0, 1.1], [98, 100, 0, 1],
+        [127, 129, 5, 6.2], [134, 136, 5, 6],
+        [188.2, 189.8, 0, 1.2], [189.8, 191.4, 0, 2.2],
+        [210, 212, 0, 1.2]
       ],
-      pits: [{ x0: 5720, x1: 5970, flag: 'bridgeR' }],
+      plates: [
+        { id: 'pR1', x: 30, y: 0, drives: 'dL1' },
+        { id: 'sR1', x: 44, y: 0, sync: 's1' },
+        { id: 'sR2', x: 101.6, y: 0, sync: 's2' },
+        { id: 'pR3', x: 109.5, y: 0, drives: 'liftL' },
+        { id: 'pR4', x: 158.4, y: 0, drives: 'bL4' },
+        { id: 'sR3', x: 160.9, y: 0, sync: 's3' }
+      ],
+      doors: [
+        { id: 'dR1', x: 26 }, { id: 's1', x: 47, sync: true }, { id: 's2', x: 103.6, sync: true }, { id: 's3', x: 163, sync: true },
+        { id: 'wR1', x: 172, wall: true }, { id: 'wR2', x: 186, wall: true }, { id: 'wR3', x: 200, wall: true }
+      ],
+      lifts: [{ id: 'liftR', x0: 119.4, x1: 122.9, y0: 0.35, y1: 5 }],
+      bridges: [{ id: 'bR4', x0: 148, x1: 156, y: 0 }],
+      carry: [{ id: 'cR', w: 3, y: 0, from: 71.5, to: 80.5, track: [68, 77] }],
+      rails: [[86, 95]],
+      bugs: [{ x0: 57, x1: 63, y: 0 }, { x0: 141.5, x1: 146.5, y: 0 }, { x0: 177, x1: 183, y: 0 }],
       pickups: [
-        pk(650, 34, '{'), pk(505, 100, '}'), pk(880, 100, '('), pk(1000, 158, ')'),
-        pk(1695, 118, '.py', { key: 'gotScript', big: true }),
-        pk(4450, 34, '['), pk(5300, 104, ']'), pk(5845, 96, '<'),
-        pk(4795, 118, '.csv', { key: 'gotDataset', big: true }),
-        pk(6850, 34, '>'), pk(8050, 104, '+'), pk(8820, 34, ';')
+        { x: 3.4, y: 1.3 }, { x: 5.6, y: 2.4 }, { x: 14.9, y: 2.3 }, { x: 20, y: 1.3 }, { x: 36, y: 1.3 },
+        { x: 65, y: 2.6 }, { x: 76, y: 2.4 }, { x: 99, y: 2.5 },
+        { x: 115, y: 1.3 }, { x: 128, y: 7.7 }, { x: 135, y: 7.5 }, { x: 152, y: 2.2 },
+        { x: 181, y: 1.3 }, { x: 194, y: 1.3 }, { x: 211, y: 2.8 },
+        { x: 175, y: 1.2, key: 'gL1', kind: 'commit' },
+        { x: 190.6, y: 3.4, key: 'gL2', kind: 'commit' },
+        { x: 203, y: 1.2, key: 'gL3', kind: 'commit' }
       ],
-      bugs: [
-        { x0: 2640, x1: 2880, y: G, fly: false },
-        { x0: 3185, x1: 3350, y: G - 64, fly: false },
-        { x0: 3560, x1: 3830, y: G - 112, fly: true }
-      ],
-      gates: [
-        { id: 'g1', x: 1960, label: 'needs a question' },
-        { id: 'g2', x: 4100, label: 'six bugs' },
-        { id: 'wR1', x: 7380, label: 'needs review' },
-        { id: 'wR2', x: 8640, label: 'needs review' }
-      ],
-      pads: [
-        { id: 'tests', x: 7655, w: 120, y: G - 64, opens: 'wL1', line: 'tests' }
-      ],
-      signs: [{ x: 6330, text: ['summer 2024', 'adobe', 'intern'] }]
+      signs: [{ x: 143, text: ['summer 2024', 'adobe', 'intern'] }]
     }
   };
 
-  window.BELLA = { CONFIG, G, END_X, CHAPTERS, BEATS, LINES, WHOLE, LEVEL };
+  window.BELLA = { CONFIG, END_X, CHAPTERS, BEATS, LINES, WHOLE, LEVEL };
 })();
